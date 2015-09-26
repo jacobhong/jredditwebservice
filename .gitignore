@@ -1,0 +1,9 @@
+.settings
+.classpath
+.idea
+*.iml
+target
+bower_components
+node_modules
+dependency_temp
+.externalToolBuilders
