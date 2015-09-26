@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ejb.Stateful;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 
 import org.jreddit.webservice.jredditwebservice.model.Multi;
@@ -36,6 +37,7 @@ import com.github.jreddit.request.retrieval.username.UsernameRequest;
 
 
 @Stateful
+@SessionScoped
 public class UserService {
 	
 	    @Inject
@@ -67,7 +69,7 @@ public class UserService {
 	    public void createAccessToken (String code) throws RedditOAuthException 
 	    {	        
 	        token = rwp.getAgent().token(code);
-	        log.log(Level.SEVERE, "TOKEN CREATED : " + token.getAccessToken());
+	        log.log(Level.SEVERE, "createAccessToken\nTOKEN CREATED :\n " + token.getAccessToken());
 	    }
 	    
 	    /**
@@ -78,10 +80,12 @@ public class UserService {
 	     */
 	    public void makeMultiredditsPublic () throws Exception 
 	    {	        
+	    	log.log(Level.SEVERE, "makeMultiredditsPublic\n my token : \n" + token.getAccessToken());
 	        String username = getUsername();
 	        String multis = getMultis(username);	      
 	        Multireddits[] s = parseJson(multis);	
-	        makePublic(s);	        
+	        makePublic(s);	 
+
 	    }
 	    
 	    public String copyUserMultis() throws RedditOAuthException 
@@ -90,11 +94,14 @@ public class UserService {
 
 	    	CopyMultisRequest request = new CopyMultisRequest();
 	    	String multis = rwp.getClient().post(token, request);
+	        log.log(Level.SEVERE, "copyUserMultis\n my token : \n" + token.getAccessToken());
+
 	    	return multis;
 	    }
 	    
 	    private String getUsername() throws ParseException, org.json.simple.parser.ParseException
 		{
+	    	log.log(Level.SEVERE, "getUsername\n my token : \n" + token.getAccessToken());
 			UsernameRequest usernameRequest = new UsernameRequest();
 			String usernameJSON = rwp.getClient().get(token, usernameRequest);
 			
@@ -102,18 +109,22 @@ public class UserService {
 			JSONObject jsonObject = ((JSONObject)parser.parse(usernameJSON));
 			
 			String username = (String) jsonObject.get("name");
+
 			return username;
 		}
 
 		private String getMultis(String username) {
+			log.log(Level.SEVERE, "getMultis\n my token : \n" + token.getAccessToken());
 			MultiredditsRequest request = new MultiredditsRequest(username);
 		    String multis = rwp.getClient().get(token, request);
+
 			return multis;
 		}
 
 		private void makePublic(Multireddits[] m) throws JsonProcessingException
 		{
 		
+			log.log(Level.SEVERE, "makePublic\n my token : \n" + token.getAccessToken());
 			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 		
 			for(Multireddits multis : m)
@@ -127,6 +138,7 @@ public class UserService {
 		        MakeMultisPublicRequest request = new MakeMultisPublicRequest(path, json);	
 		        rwp.getClient().put(token, request);
 			}	    	    	
+
 		}
 		
 		private void makePrivate(Multireddits[] m, RedditToken token) throws JsonProcessingException
@@ -149,6 +161,7 @@ public class UserService {
 
 		private Multireddits[] parseJson(String json) throws Exception
 	    {	    				
+			log.log(Level.SEVERE, "parseJson\n my token : \n" + token.getAccessToken());
 	    	Multireddits[] m = null;
 	    	ObjectMapper mapper = new ObjectMapper();
 	    		
@@ -161,7 +174,7 @@ public class UserService {
 	    	{
 	    		throw e;
 	    	}
-	    		
+
 			return m;	    	
 	    }
 	    
